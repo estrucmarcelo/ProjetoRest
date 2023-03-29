@@ -13,15 +13,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
 public class Estudante {
 
-	@Getter
-	@Setter
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -29,21 +28,14 @@ public class Estudante {
 	
 	private String nome;
 	
-	@Getter
-	@Setter
+
 	private String email;
 	
-	@Getter
-	@Setter
+
 	private LocalDate dataNascimento;
 
 	
-	public String getNome() {
-		return nome;
-	}
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
+	
 	
 	
 	
