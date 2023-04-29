@@ -16,23 +16,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
+        
   springapp:
-    build:
-      context: .
-    container_name: api
+    image: spring_v1
     ports:
       - 8080:8080
     depends_on:
       mysqldbspring:
-        condition: service_healthy      
-  #springapp:
-    #image: spring_v1
-    #ports:
-      #- 8080:8080
-    #depends_on:
-      #mysqldbspring:
-        #condition: service_healthy
+        condition: service_healthy
     
 volumes:
   db_local_data:
