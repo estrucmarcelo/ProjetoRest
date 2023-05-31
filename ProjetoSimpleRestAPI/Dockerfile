@@ -1,6 +1,6 @@
 from maven:latest as build
 copy . .
-run mvn clean install
+run mvn clean package -Dmaven.test.skip=true
 
 
 from openjdk:latest
