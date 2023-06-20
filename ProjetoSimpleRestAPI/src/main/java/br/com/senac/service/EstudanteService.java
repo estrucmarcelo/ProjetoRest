@@ -1,6 +1,8 @@
 package br.com.senac.service;
 
 import java.util.List;
+import java.util.Optional;
+
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import br.com.senac.domain.Estudante;
+import br.com.senac.dto.EstudanteDTO;
+import br.com.senac.exceptions.ObjectNotFoundException;
 import br.com.senac.repository.EstudanteRepository;
 import lombok.AllArgsConstructor;
 
@@ -18,33 +22,24 @@ public class EstudanteService {
 
 	private EstudanteRepository estudanteRepository;
 
-	public ResponseEntity<Estudante> buscarEstudantePorId(Long id) {
+	public Estudante buscarEstudantePorId(Long id) {
 
-		Estudante estudante = estudanteRepository.findById(id).get();
+		Optional<Estudante> obj =  estudanteRepository.findById(id);
+		return obj.orElseThrow(() -> new ObjectNotFoundException("Estudante não encontrado: " + id));
 
-		if (estudante != null) {
-			return ResponseEntity.status(HttpStatus.OK).body(estudante);
-		}
+		
+	}
 
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+	public List<Estudante> buscarTodosEstudantes() {
+
+		return estudanteRepository.findAll();
+		
+		
 
 	}
 
-	public ResponseEntity<List<Estudante>> buscarTodosEstudantes() {
-
-		List<Estudante> listaEstudantes = estudanteRepository.findAll();
-
-		if (listaEstudantes != null) {
-			return ResponseEntity.status(HttpStatus.OK).body(listaEstudantes);
-		}
-
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-
-	}
-
-	public ResponseEntity<Estudante> cadastrarEstudante(Estudante estudante) {
-		Estudante est = estudanteRepository.save(estudante);
-		return ResponseEntity.status(HttpStatus.CREATED).body(est);
+	public Estudante cadastrarEstudante(Estudante estudante) {
+		return estudanteRepository.save(estudante);
 	}
 
 	public ResponseEntity<Estudante> atualizarEstudante(Long id, Estudante estudante) {

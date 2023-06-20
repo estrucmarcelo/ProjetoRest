@@ -1,8 +1,9 @@
 package br.com.senac.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,29 +19,59 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.senac.commons.ExampleValues;
 import br.com.senac.domain.Estudante;
+import br.com.senac.dto.EstudanteDTO;
 import br.com.senac.service.EstudanteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("estudante")
 public class EstudanteController {
 
-	@Autowired
 	private EstudanteService estudanteService;
 	
+	private ModelMapper mapper;
+	
+	public EstudanteController(ModelMapper mapper,EstudanteService estudanteService) {
+		this.mapper = mapper;
+		this.estudanteService = estudanteService;
+	}
+	
+	
+	
 	@GetMapping("/{id}")
-	public ResponseEntity<Estudante> buscarEstudantePorId(@PathVariable Long id){
-		return estudanteService.buscarEstudantePorId(id);
+	@Operation(description = "Retorna os registros pelo id")
+	public ResponseEntity<EstudanteDTO> buscarEstudantePorId(@PathVariable("id") @Schema(example = ExampleValues.idEstudante) Long id){
+		Estudante estudante = estudanteService.buscarEstudantePorId(id);
+		EstudanteDTO estudanteDTO =  mapper.map(estudante,EstudanteDTO.class);
+		return ResponseEntity.ok().body(estudanteDTO);
 	}
 	
 	@GetMapping
-	public ResponseEntity<List<Estudante>> buscarTodosEstudantes(){
-		return estudanteService.buscarTodosEstudantes();
+	public ResponseEntity<List<EstudanteDTO>> buscarTodosEstudantes(){
+		List<Estudante> list =  estudanteService.buscarTodosEstudantes();
+		List<EstudanteDTO> listDTO = list.stream().map(estudante -> mapper.map(estudante, EstudanteDTO.class)).collect(Collectors.toList());
+		return ResponseEntity.ok().body(listDTO);
 	}
 	
 	@PostMapping
-	public ResponseEntity<Estudante> cadastrarEstudante(@RequestBody Estudante estudante){
-		return estudanteService.cadastrarEstudante(estudante);
+	public ResponseEntity<EstudanteDTO> cadastrarEstudante(@Valid
+			@io.swagger.v3.oas.annotations.parameters.RequestBody(content= @Content(examples = {
+					@ExampleObject(name="Exemplo de Estudante", value = ExampleValues.exemploEstudante)
+			}))   
+			@RequestBody EstudanteDTO estudanteDTO){
+			
+			Estudante estudanteObj = mapper.map(estudanteDTO, Estudante.class);
+			
+			estudanteObj = estudanteService.cadastrarEstudante(estudanteObj);
+			
+		return ResponseEntity.ok().body(estudanteDTO);
 	}
 	
 	
